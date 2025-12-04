@@ -26,7 +26,8 @@ void epithelium_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	static int apoptosis_index = pCell->phenotype.death.find_death_model_index( "apoptosis" ); 
 	
 	
-	receptor_dynamics_info.main_function(dt); 
+	//receptor_dynamics_info.main_function(dt); 
+	receptor_dynamics_info.phenotype_function(pCell,phenotype,dt); 
 	
 	
 	// viral dynamics model 

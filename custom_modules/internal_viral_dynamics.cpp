@@ -61,12 +61,12 @@ void simple_intracellular_replication_model(  Cell* pCell, Phenotype& phenotype,
 
 	if(pCell->phenotype.molecular.internalized_total_substrates[virus_index]>0)
 	{
-	std::cout<<"Internal: "<<pCell->phenotype.molecular.internalized_total_substrates[virus_index]<<". Aim: "<<v_rep/Vvoxel<<std::endl;
+	//std::cout<<"Internal: "<<pCell->phenotype.molecular.internalized_total_substrates[virus_index]<<". Aim: "<<v_rep/Vvoxel<<std::endl;
 	}
 	// cell isn't in an antiviral state and has enough intracellular virus
 	if(pCell->custom_data["antiviral_state"]<0.5&&pCell->phenotype.molecular.internalized_total_substrates[virus_index]*Vvoxel>v_rep) 
 	{	
-		std::cout<<"Amount internal "<<pCell->phenotype.molecular.internalized_total_substrates[virus_index]<<std::endl;
+		//std::cout<<"Amount internal "<<pCell->phenotype.molecular.internalized_total_substrates[virus_index]<<std::endl;
 		pCell->phenotype.molecular.internalized_total_substrates[virus_index] += gamnuc*Vconc*(1-Vconc/alpha)*dt;
 		if(pCell->custom_data["eclipse_time"]<1)
 		{pCell->custom_data["eclipse_time"] = PhysiCell_globals.current_time+tau_rel;}

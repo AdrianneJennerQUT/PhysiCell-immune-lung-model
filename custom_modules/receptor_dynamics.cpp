@@ -13,9 +13,15 @@ void simple_receptor_dynamics_model_setup(void)
 	receptor_dynamics_info.name = "receptor dynamics"; 
 	receptor_dynamics_info.version = receptor_model_version; 
 	// set functions 
+	/*
 	receptor_dynamics_info.main_function = simple_receptor_dynamics_main_model; 
 	receptor_dynamics_info.phenotype_function = NULL; // pushed into the "main" model  
 	receptor_dynamics_info.mechanics_function = NULL; 	
+	*/
+	
+	receptor_dynamics_info.main_function = NULL; 
+	receptor_dynamics_info.phenotype_function = simple_receptor_dynamics_model; // pushed into the "main" model  
+	receptor_dynamics_info.mechanics_function = NULL; 
 	
 	// what microenvironment variables do you need 
 	receptor_dynamics_info.microenvironment_variables.push_back( "virion" ); 	
@@ -82,7 +88,6 @@ void simple_receptor_dynamics_model( Cell* pCell, Phenotype& phenotype, double d
 
 void simple_receptor_dynamics_main_model( double dt )
 {
-	//std::cout<<"Here 1"<<std::endl;
 	#pragma omp parallel for 
 	for( int n=0; n < (*all_cells).size() ; n++ )
 	{
