@@ -49,9 +49,9 @@ void simple_receptor_dynamics_model( Cell* pCell, Phenotype& phenotype, double d
 	
 	
 	//****************************************************************
-	static int virus_index = microenvironment.find_density_index( "virion" ); 
-	/*
-	static double Vvoxel = microenvironment.mesh.voxels[1].volume;
+	int virus_index = microenvironment.find_density_index( "virion" ); 
+	
+	double Vvoxel = microenvironment.mesh.voxels[1].volume;
 	double rho = pCell->nearest_density_vector()[virus_index];
 	double m = pCell->phenotype.molecular.internalized_total_substrates[virus_index];
 	double mhalf = parameters.doubles("mhalf");
@@ -60,6 +60,7 @@ void simple_receptor_dynamics_model( Cell* pCell, Phenotype& phenotype, double d
 	
 	if(rho*Vvoxel>1)//0) // if density of virus oustide cell is non-negative value or greater than 1 virion
 	{
+		//std::cout<<"New uptake rate: "<<pCell->phenotype.secretion.uptake_rates[virus_index]<<std::endl;
 		
 		if(rho<rhomax/Vvoxel)
 		{
@@ -75,8 +76,6 @@ void simple_receptor_dynamics_model( Cell* pCell, Phenotype& phenotype, double d
 	{pCell->phenotype.secretion.uptake_rates[virus_index]=0;}
 	
 	
-	//std::cout<<pCell->phenotype.secretion.uptake_rates[virus_index]<<std::endl;
-		*/
 		
 	return;
 }
