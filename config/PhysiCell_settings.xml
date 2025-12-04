@@ -69,7 +69,7 @@
                 <diffusion_coefficient units="micron^2/min">60</diffusion_coefficient>
                 <decay_rate units="1/min">0.0039</decay_rate>
             </physical_parameter_set>
-            <initial_condition units="virion/micron^3">1</initial_condition>
+            <initial_condition units="virion/micron^3">0</initial_condition>
             <Dirichlet_boundary_condition units="virion/micron^3" enabled="False">0</Dirichlet_boundary_condition>
             <Dirichlet_options>
                 <boundary_value ID="xmin" enabled="False">0</boundary_value>
