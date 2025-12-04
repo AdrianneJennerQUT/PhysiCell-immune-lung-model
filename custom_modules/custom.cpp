@@ -442,7 +442,10 @@ std::vector<std::string> epithelium_coloring_function( Cell* pCell )
 	{
 		double Vnuc = pCell->custom_data["Vnuc" ]*Vvoxel;
 		//double Vnuc = pCell->phenotype.molecular.internalized_total_substrates[virion_index];			
-				
+			
+		if(Vnuc>0)
+		{std::cout<<Vnuc<<std::endl;}
+			
 		double interpolation = 0; 
 		if( Vnuc < 1 )
 		{ interpolation = 0; } 

@@ -28,6 +28,7 @@ void epithelium_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	
 	receptor_dynamics_info.main_function(dt); 
 	
+	
 	// viral dynamics model 
 	internal_viral_dynamics_info.phenotype_function(pCell,phenotype,dt); 
 	// internal_virus_model(pCell,phenotype,dt);
@@ -41,7 +42,9 @@ void epithelium_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	
 	// (Adrianne) ROS induced cell death model
 	ROS_induced_apoptosis(pCell, phenotype, dt);
-			
+		
+
+		
 	// if I am dead, remove all adhesions 
 	if( phenotype.death.dead == true )
 	{

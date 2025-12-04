@@ -115,13 +115,11 @@ void simple_viral_secretion_model( Cell* pCell, Phenotype& phenotype, double dt 
 	static int virus_index = microenvironment.find_density_index( "virion" ); 
 	static int proinflammatory_cytokine_index = microenvironment.find_density_index( "pro-inflammatory cytokine");
 			
-	std::cout<<pCell->phenotype.secretion.secretion_rates[virus_index]<<std::endl;
 	
 	double Vvoxel = microenvironment.mesh.voxels[1].volume;
 		
 	if(pCell->phenotype.molecular.internalized_total_substrates[virus_index]*Vvoxel>8e3 && PhysiCell_globals.current_time>pCell->custom_data["eclipse_time"])
 	{
-		std::cout<<"Here"<<std::endl;
 		pCell->phenotype.secretion.secretion_rates[virus_index] = parameters.doubles("kRel");
 	}
 	else
