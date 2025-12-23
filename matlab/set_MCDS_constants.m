@@ -84,7 +84,7 @@ MCDS_constants.basic_Ki67_cycle_model=1;
 MCDS_constants.flow_cytometry_cycle_model=2;
 MCDS_constants.live_apoptotic_cycle_model=3;
 MCDS_constants.total_cells_cycle_model=4;
-MCDS_constants.live_cells_cycle_model = 5; 
+MCDS_constants.live_cells_cycle_model=6; 
 
 MCDS_constants.flow_cytometry_separated_cycle_model  = 6; 
 	
