@@ -67,76 +67,11 @@
 
 #include "./custom.h"
 
-double DM = 0.0;
-
-
-std::vector<std::string> my_coloring_function(Cell* pCell)
-{
-    std::vector<std::string> output(4, "black");
-
-    if (pCell->phenotype.death.dead)
-    {
-        output[0] = "#444444"; // fill (dead)
-        output[2] = "#000000"; // outline
-        return output;
-    }
-
-    int type = pCell->type;
-
-    switch (type)
-    {
-        case 0: // Uninfected
-            output[0] = "#5b5be5"; output[2] = "#000088";
-            break;
-
-        case 1: // Infected (low)
-            output[0] = "#aaaaff"; output[2] = "#5555ff";
-            break;
-
-        case 2: // Infected (high)
-            output[0] = "#ffff88"; output[2] = "#dddd00";
-            break;
-
-        case 3: // Macrophage
-            output[0] = "#3cb371"; output[2] = "#2e8b57";
-            break;
-
-        case 4: // Neutrophil
-            output[0] = "#00ffff"; output[2] = "#008b8b";
-            break;
-
-        case 5: // CD8 T cell
-            output[0] = "#ff0000"; output[2] = "#8b0000";
-            break;
-
-        case 6: // Dendritic cell
-            output[0] = "#800080"; output[2] = "#4b0082";
-            break;
-
-        case 7: // CD4 T cell
-            output[0] = "#ffa500"; output[2] = "#ff8c00";
-            break;
-
-        default:
-            output[0] = "white"; output[2] = "black";
-            break;
-    }
-
-    return output;
-}
-
-
-
 void create_cell_types( void )
 {
 	// set the random seed 
-	if (parameters.ints.find_index("random_seed") != -1)
-	{
-		SeedRandom(parameters.ints("random_seed"));
-	}
+	SeedRandom( parameters.ints("random_seed") );  
 	
-    initialize_default_cell_definition(); 
-
 	/* 
 	   Put any modifications to default cell definition here if you 
 	   want to have "inherited" by other cell types. 
@@ -187,9 +122,6 @@ void create_cell_types( void )
 	*/
 		
 	build_cell_definitions_maps(); 
-
-    setup_signal_behavior_dictionaries(); 	
-
 	display_cell_definitions( std::cout ); 
 	
 	return; 
@@ -212,6 +144,8 @@ void setup_microenvironment( void )
 void setup_tissue( void )
 {
 	static int nV = microenvironment.find_density_index( "virion" ); 
+	
+	static int virion_external = microenvironment.find_density_index( "virion" ); 
 	
 	choose_initialized_voxels();
 	
@@ -248,6 +182,7 @@ void setup_tissue( void )
 	int large_bron = parameters.ints("large_bron");
 	int small_bron = parameters.ints("small_bron");
 	double density_virions = parameters.doubles("density_virion");
+	
 	int bronchcentre1_x = 1500-4000;
 	int bronchcentre1_y = 2500-2500;	
 	int bronchcentre2_x = 2500-4000;
@@ -281,8 +216,7 @@ void setup_tissue( void )
 	int bronchcentre16_x = 7318-4000;
 	int bronchcentre16_y = 2992-2500;
 	int bronchcentre17_x = 1845-4000;
-	int bronchcentre17_y = 4067-2500;
-		
+	int bronchcentre17_y = 4067-2500;		
 		
 	if( parameters.bools( "initial_condition_large_tissue_bronchiole") == true )
 	{
@@ -297,8 +231,8 @@ void setup_tissue( void )
 				if((x-bronchcentre1_x)*(x-bronchcentre1_x)+(y-bronchcentre1_y)*(y-bronchcentre1_y)>large_bron*large_bron &&
 				(x-bronchcentre2_x)*(x-bronchcentre2_x)+(y-bronchcentre2_y)*(y-bronchcentre2_y)>large_bron*large_bron &&
 				(x-bronchcentre3_x)*(x-bronchcentre3_x)+(y-bronchcentre3_y)*(y-bronchcentre3_y)>large_bron*large_bron &&
-				(x-bronchcentre4_x)*(x-bronchcentre4_x)+(y-bronchcentre4_y)*(y-bronchcentre4_y)>large_bron*large_bron &&
-				(x-bronchcentre5_x)*(x-bronchcentre5_x)+(y-bronchcentre5_y)*(y-bronchcentre5_y)>large_bron*large_bron&&
+				(x-bronchcentre4_x)*(x-bronchcentre4_x)+(y-bronchcentre4_y)*(y-bronchcentre4_y)>large_bron*large_bron&&
+				(x-bronchcentre5_x)*(x-bronchcentre5_x)+(y-bronchcentre5_y)*(y-bronchcentre5_y)>large_bron*large_bron &&
 				(x-bronchcentre6_x)*(x-bronchcentre6_x)+(y-bronchcentre6_y)*(y-bronchcentre6_y)>small_bron*small_bron&&
 				(x-bronchcentre7_x)*(x-bronchcentre7_x)+(y-bronchcentre7_y)*(y-bronchcentre7_y)>small_bron*small_bron&&
 				(x-bronchcentre8_x)*(x-bronchcentre8_x)+(y-bronchcentre8_y)*(y-bronchcentre8_y)>small_bron*small_bron&&
@@ -311,7 +245,6 @@ void setup_tissue( void )
 				(x-bronchcentre15_x)*(x-bronchcentre15_x)+(y-bronchcentre15_y)*(y-bronchcentre15_y)>small_bron*small_bron&&
 				(x-bronchcentre16_x)*(x-bronchcentre16_x)+(y-bronchcentre16_y)*(y-bronchcentre16_y)>small_bron*small_bron&&
 				(x-bronchcentre17_x)*(x-bronchcentre17_x)+(y-bronchcentre17_y)*(y-bronchcentre17_y)>small_bron*small_bron)
-				
 				{
 					pC = create_cell( get_cell_definition("lung epithelium" ) ); 
 					pC->assign_position( x,y, 0.0 );
@@ -384,40 +317,39 @@ void setup_tissue( void )
 			std::vector<double> Vectpos = microenvironment.mesh.voxels[n].center;
 			
 			if((Vectpos[0]-bronchcentre1_x)*(Vectpos[0]-bronchcentre1_x)+(Vectpos[1]-bronchcentre1_y)*(Vectpos[1]-bronchcentre1_y)<large_bron*large_bron)//in bronchiole 1
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre2_x)*(Vectpos[0]-bronchcentre2_x)+(Vectpos[1]-bronchcentre2_y)*(Vectpos[1]-bronchcentre2_y)<large_bron*large_bron)//in bronchiole 2
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre3_x)*(Vectpos[0]-bronchcentre3_x)+(Vectpos[1]-bronchcentre3_y)*(Vectpos[1]-bronchcentre3_y)<large_bron*large_bron)//in bronchiole 3
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre4_x)*(Vectpos[0]-bronchcentre4_x)+(Vectpos[1]-bronchcentre4_y)*(Vectpos[1]-bronchcentre4_y)<large_bron*large_bron)//in bronchiole 4
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre5_x)*(Vectpos[0]-bronchcentre5_x)+(Vectpos[1]-bronchcentre5_y)*(Vectpos[1]-bronchcentre5_y)<large_bron*large_bron)//in bronchiole 5
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre6_x)*(Vectpos[0]-bronchcentre6_x)+(Vectpos[1]-bronchcentre6_y)*(Vectpos[1]-bronchcentre6_y)<small_bron*small_bron)//in bronchiole 6
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre7_x)*(Vectpos[0]-bronchcentre7_x)+(Vectpos[1]-bronchcentre7_y)*(Vectpos[1]-bronchcentre7_y)<small_bron*small_bron)//in bronchiole 7
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre8_x)*(Vectpos[0]-bronchcentre8_x)+(Vectpos[1]-bronchcentre8_y)*(Vectpos[1]-bronchcentre8_y)<small_bron*small_bron)//in bronchiole 8
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre9_x)*(Vectpos[0]-bronchcentre9_x)+(Vectpos[1]-bronchcentre9_y)*(Vectpos[1]-bronchcentre9_y)<small_bron*small_bron)//in bronchiole 9
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre10_x)*(Vectpos[0]-bronchcentre10_x)+(Vectpos[1]-bronchcentre10_y)*(Vectpos[1]-bronchcentre10_y)<small_bron*small_bron)//in bronchiole 10
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre11_x)*(Vectpos[0]-bronchcentre11_x)+(Vectpos[1]-bronchcentre11_y)*(Vectpos[1]-bronchcentre11_y)<small_bron*small_bron)//in bronchiole 11
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre12_x)*(Vectpos[0]-bronchcentre12_x)+(Vectpos[1]-bronchcentre12_y)*(Vectpos[1]-bronchcentre12_y)<small_bron*small_bron)//in bronchiole 12
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre13_x)*(Vectpos[0]-bronchcentre13_x)+(Vectpos[1]-bronchcentre13_y)*(Vectpos[1]-bronchcentre13_y)<small_bron*small_bron)//in bronchiole 13
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre14_x)*(Vectpos[0]-bronchcentre14_x)+(Vectpos[1]-bronchcentre14_y)*(Vectpos[1]-bronchcentre14_y)<small_bron*small_bron)//in bronchiole 14
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre15_x)*(Vectpos[0]-bronchcentre15_x)+(Vectpos[1]-bronchcentre15_y)*(Vectpos[1]-bronchcentre15_y)<small_bron*small_bron)//in bronchiole 15
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre16_x)*(Vectpos[0]-bronchcentre16_x)+(Vectpos[1]-bronchcentre16_y)*(Vectpos[1]-bronchcentre16_y)<small_bron*small_bron)//in bronchiole 16
-			{microenvironment(n)[nV] += density_virions;}
+			{microenvironment(n)[virion_external] += density_virions;}
 			else if((Vectpos[0]-bronchcentre17_x)*(Vectpos[0]-bronchcentre17_x)+(Vectpos[1]-bronchcentre17_y)*(Vectpos[1]-bronchcentre17_y)<small_bron*small_bron)//in bronchiole 17
-			{microenvironment(n)[nV] += density_virions;}
-			
+			{microenvironment(n)[virion_external] += density_virions;}
 			
 		}
 		
@@ -432,8 +364,6 @@ void setup_tissue( void )
 
 std::vector<std::string> epithelium_coloring_function( Cell* pCell )
 {
-	
-	static int virion_index = microenvironment.find_density_index( "virion" ); //virion//
 	std::vector<std::string> output( 4, "black" ); 
 	
 		double Vvoxel = microenvironment.mesh.voxels[1].volume;
@@ -441,9 +371,7 @@ std::vector<std::string> epithelium_coloring_function( Cell* pCell )
 	if( pCell->phenotype.death.dead == false )
 	{
 		double Vnuc = pCell->custom_data["Vnuc" ]*Vvoxel;
-		//double Vnuc = pCell->phenotype.molecular.internalized_total_substrates[virion_index];			
-			
-		
+				
 		double interpolation = 0; 
 		if( Vnuc < 1 )
 		{ interpolation = 0; } 
@@ -505,9 +433,9 @@ std::vector<std::string> tissue_coloring_function( Cell* pCell )
 	{
 		if(pCell->custom_data["antiviral_state"]>0.5)
 		{
-			output[0] = "green";	
-			output[2] = "black";
-			output[3] = "green";	
+			output[0] = "blue";	
+			output[2] = "blue";
+			output[3] = "blue";	
 			return output; 
 		}
 		// color by virion 

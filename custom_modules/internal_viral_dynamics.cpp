@@ -48,26 +48,22 @@ void simple_internal_virus_model( Cell* pCell, Phenotype& phenotype, double dt )
 }
 void simple_intracellular_replication_model(  Cell* pCell, Phenotype& phenotype, double dt )
 {	
-	static int virus_index = microenvironment.find_density_index( "virion" ); //virion//
+
+	static int virion_external = microenvironment.find_density_index( "virion" ); 
 	static int proinflammatory_cytokine_index = microenvironment.find_density_index( "pro-inflammatory cytokine");
 	static int apoptosis_index = pCell->phenotype.death.find_death_model_index( "apoptosis" ); 
 	
-	double Vconc = pCell->phenotype.molecular.internalized_total_substrates[virus_index];
+	double Vconc = pCell->phenotype.molecular.internalized_total_substrates[virion_external];
 	double Vvoxel = microenvironment.mesh.voxels[1].volume;
 	static double gamnuc = parameters.doubles("gamnuc");
 	static double alpha = parameters.doubles("alpha")/Vvoxel;
 	double v_rep = parameters.doubles("v_rep");
 	double tau_rel = parameters.doubles("tau_rel");
-
-	if(pCell->phenotype.molecular.internalized_total_substrates[virus_index]>0)
-	{
-	//std::cout<<"Internal: "<<pCell->phenotype.molecular.internalized_total_substrates[virus_index]<<". Aim: "<<v_rep/Vvoxel<<std::endl;
-	}
+	
 	// cell isn't in an antiviral state and has enough intracellular virus
-	if(pCell->custom_data["antiviral_state"]<0.5&&pCell->phenotype.molecular.internalized_total_substrates[virus_index]*Vvoxel>v_rep) 
+	if(pCell->custom_data["antiviral_state"]<0.5&&pCell->phenotype.molecular.internalized_total_substrates[virion_external]*Vvoxel>v_rep) 
 	{	
-		//std::cout<<"Amount internal "<<pCell->phenotype.molecular.internalized_total_substrates[virus_index]<<std::endl;
-		pCell->phenotype.molecular.internalized_total_substrates[virus_index] += gamnuc*Vconc*(1-Vconc/alpha)*dt;
+		pCell->phenotype.molecular.internalized_total_substrates[virion_external] += gamnuc*Vconc*(1-Vconc/alpha)*dt;
 		if(pCell->custom_data["eclipse_time"]<1)
 		{pCell->custom_data["eclipse_time"] = PhysiCell_globals.current_time+tau_rel;}
 		pCell->phenotype.death.rates[apoptosis_index] = parameters.doubles("infected_cell_death_rate");
@@ -75,18 +71,18 @@ void simple_intracellular_replication_model(  Cell* pCell, Phenotype& phenotype,
 	}
 	else if(pCell->custom_data["antiviral_state"]>0.5) //Cell is in an antiviral state stop secreting cytokine and virions
 	{
-		pCell->phenotype.molecular.internalized_total_substrates[virus_index] = 0;
+		pCell->phenotype.molecular.internalized_total_substrates[virion_external] = 0;
 		phenotype.secretion.secretion_rates[proinflammatory_cytokine_index] = 0;
 	}
 	// cell not in antiviral state but not sufficiently infected
-	else if(pCell->phenotype.molecular.internalized_total_substrates[virus_index]*Vvoxel<11) 
+	else if(pCell->phenotype.molecular.internalized_total_substrates[virion_external]*Vvoxel<11) 
 	{
-			double prob_infection_recognition = 0.0; // probability at low MOI a cell realises it's infected
+			double prob_infection_recognition = 0.3; // probability at low MOI a cell realises it's infected
 			if(UniformRandom()<prob_infection_recognition)
-			{pCell->phenotype.molecular.internalized_total_substrates[virus_index] = 0;}
+			{pCell->phenotype.molecular.internalized_total_substrates[virion_external] = 0;}
 			
 	}
-	pCell->custom_data["Vnuc"] = pCell->phenotype.molecular.internalized_total_substrates[virus_index];	
+	pCell->custom_data["Vnuc"] = pCell->phenotype.molecular.internalized_total_substrates[virion_external];	
 	
 	return;	
 }

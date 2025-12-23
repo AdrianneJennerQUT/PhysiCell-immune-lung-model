@@ -13,15 +13,9 @@ void simple_receptor_dynamics_model_setup(void)
 	receptor_dynamics_info.name = "receptor dynamics"; 
 	receptor_dynamics_info.version = receptor_model_version; 
 	// set functions 
-	/*
 	receptor_dynamics_info.main_function = simple_receptor_dynamics_main_model; 
 	receptor_dynamics_info.phenotype_function = NULL; // pushed into the "main" model  
 	receptor_dynamics_info.mechanics_function = NULL; 	
-	*/
-	
-	receptor_dynamics_info.main_function = NULL; 
-	receptor_dynamics_info.phenotype_function = simple_receptor_dynamics_model; // pushed into the "main" model  
-	receptor_dynamics_info.mechanics_function = NULL; 
 	
 	// what microenvironment variables do you need 
 	receptor_dynamics_info.microenvironment_variables.push_back( "virion" ); 	
@@ -43,7 +37,7 @@ void simple_receptor_dynamics_model_setup(void)
 
 void simple_receptor_dynamics_model( Cell* pCell, Phenotype& phenotype, double dt )
 {
-	
+
 	// if cell is dead, no virus binding
 	if( phenotype.death.dead == true )
 	{ return; } 
@@ -53,41 +47,36 @@ void simple_receptor_dynamics_model( Cell* pCell, Phenotype& phenotype, double d
 	if( pCell->type != lung_epithelial_type )
 	{ return; } 
 	
-	
 	//****************************************************************
-	int virus_index = microenvironment.find_density_index( "virion" ); 
+	static int virion_external = microenvironment.find_density_index( "virion" ); 
 	
 	double Vvoxel = microenvironment.mesh.voxels[1].volume;
-	double rho = pCell->nearest_density_vector()[virus_index];
-	double m = pCell->phenotype.molecular.internalized_total_substrates[virus_index];
+	double rho = pCell->nearest_density_vector()[virion_external];
+	double m = pCell->phenotype.molecular.internalized_total_substrates[virion_external];
 	double mhalf = parameters.doubles("mhalf");
 	double rhomax = parameters.doubles("rhomax");
-		
 	
-	if(rho*Vvoxel>1)//0) // if density of virus oustide cell is non-negative value or greater than 1 virion
+	if(rho>0) // if density of virus oustide cell is non-negative value
 	{
-		//std::cout<<"New uptake rate: "<<pCell->phenotype.secretion.uptake_rates[virus_index]<<std::endl;
-		
 		if(rho<rhomax/Vvoxel)
 		{
-			pCell->phenotype.secretion.uptake_rates[virus_index] = parameters.doubles("uEvirus")*(mhalf/(m/Vvoxel+mhalf/Vvoxel));
-		
+			pCell->phenotype.secretion.uptake_rates[virion_external] = parameters.doubles("uEvirus")*(mhalf/(m/Vvoxel+mhalf/Vvoxel));
 		}
 		else
 		{
-			pCell->phenotype.secretion.uptake_rates[virus_index] = parameters.doubles("uEvirus")*(rhomax/Vvoxel/rho)*(mhalf/(m/Vvoxel+mhalf/Vvoxel));
+			pCell->phenotype.secretion.uptake_rates[virion_external] = parameters.doubles("uEvirus")*(rhomax/Vvoxel/rho)*(mhalf/(m/Vvoxel+mhalf/Vvoxel));
+			std::cout<<pCell->phenotype.secretion.uptake_rates[virion_external]<<std::endl;
 		}
 	}
 	else // density of virus outside the cell was negative and so no receptor binding occurs
-	{pCell->phenotype.secretion.uptake_rates[virus_index]=0;}
-	
-	
-		
+	{pCell->phenotype.secretion.uptake_rates[virion_external]=0;}
+				
 	return;
 }
 
 void simple_receptor_dynamics_main_model( double dt )
 {
+	
 	#pragma omp parallel for 
 	for( int n=0; n < (*all_cells).size() ; n++ )
 	{

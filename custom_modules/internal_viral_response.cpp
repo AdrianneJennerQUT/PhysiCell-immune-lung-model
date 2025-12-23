@@ -18,7 +18,7 @@ void simple_internal_virus_response_model_setup( void )
 	internal_virus_response_model_info.mechanics_function = NULL; 
 	
 	// what microenvironment variables do you need 
-	internal_virus_response_model_info.microenvironment_variables.push_back( "virion" ); 
+	internal_virus_response_model_info.microenvironment_variables.push_back( "virion" ); 	
 	internal_virus_response_model_info.microenvironment_variables.push_back( "interferon 1" ); 	
 	internal_virus_response_model_info.microenvironment_variables.push_back( "pro-inflammatory cytokine" ); 	
 	internal_virus_response_model_info.microenvironment_variables.push_back( "debris" ); 	
@@ -47,6 +47,7 @@ void simple_internal_virus_response_model_setup( void )
 
 void simple_internal_virus_response_model( Cell* pCell, Phenotype& phenotype, double dt )
 {
+	
 	// if amount of intracellular virions is less than 1 virion, don't do anything
 	double Vnuc = pCell->custom_data["Vnuc"];
 	if(pCell->custom_data["Vnuc"]<1e-6)
@@ -58,7 +59,7 @@ void simple_internal_virus_response_model( Cell* pCell, Phenotype& phenotype, do
 	{ return; } 
 	
 			
-	static int virus_index = microenvironment.find_density_index( "virion" ); 	
+	static int virion_external = microenvironment.find_density_index( "virion" ); 	
 	static int chemokine_index = microenvironment.find_density_index( "chemokine" );
 	static int IFN_index = microenvironment.find_density_index( "interferon 1" );
 	static int proinflammatory_cytokine_index = microenvironment.find_density_index( "pro-inflammatory cytokine");
@@ -68,8 +69,8 @@ void simple_internal_virus_response_model( Cell* pCell, Phenotype& phenotype, do
 		pCell->phenotype.secretion.secretion_rates[proinflammatory_cytokine_index] = 0;
 		pCell->phenotype.secretion.secretion_rates[chemokine_index] = 0;
 		pCell->custom_data["infected_cell_chemokine_secretion_activated"] = 0.5; 
-		pCell->phenotype.secretion.secretion_rates[virus_index] = 0;
-		pCell->phenotype.molecular.internalized_total_substrates[virus_index] = 0;
+		pCell->phenotype.secretion.secretion_rates[virion_external] = 0;
+		pCell->phenotype.molecular.internalized_total_substrates[virion_external] = 0;
 		pCell->custom_data["Vnuc"] = 0;
 		return;
 	}
@@ -96,7 +97,7 @@ void simple_internal_virus_response_model( Cell* pCell, Phenotype& phenotype, do
 			pCell->phenotype.secretion.secretion_rates[chemokine_index] = pCell->custom_data["infected_cell_chemokine_secretion_rate"];//rate;
 		}
 		
-		//phenotype.secretion.secretion_rates[virus_index]  = 1;
+		//phenotype.secretion.secretion_rates[vtest_external]  = 1;
 	}
 	
 	if(pCell->custom_data["antiviral_state"]>0.5)
@@ -112,24 +113,23 @@ void simple_internal_virus_response_model( Cell* pCell, Phenotype& phenotype, do
 void simple_viral_secretion_model( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	
-	static int virus_index = microenvironment.find_density_index( "virion" ); 
+	static int virion_external = microenvironment.find_density_index( "virion" ); 
 	static int proinflammatory_cytokine_index = microenvironment.find_density_index( "pro-inflammatory cytokine");
 			
-	
 	double Vvoxel = microenvironment.mesh.voxels[1].volume;
 		
-	if(pCell->phenotype.molecular.internalized_total_substrates[virus_index]*Vvoxel>8e3 && PhysiCell_globals.current_time>pCell->custom_data["eclipse_time"])
+	if(pCell->phenotype.molecular.internalized_total_substrates[virion_external]*Vvoxel>8e3 && PhysiCell_globals.current_time>pCell->custom_data["eclipse_time"])
 	{
-		pCell->phenotype.secretion.secretion_rates[virus_index] = parameters.doubles("kRel");
+		pCell->phenotype.secretion.secretion_rates[virion_external] = parameters.doubles("kRel");
 	}
 	else
-	{pCell->phenotype.secretion.secretion_rates[virus_index] = 0;}	
+	{pCell->phenotype.secretion.secretion_rates[virion_external] = 0;}	
 
 	if(pCell->custom_data["antiviral_state"]>0.5) // cell is in an antiviral state
 	{			
-		pCell->phenotype.secretion.secretion_rates[virus_index] = 0;
+		pCell->phenotype.secretion.secretion_rates[virion_external] = 0;
 		pCell->phenotype.secretion.secretion_rates[proinflammatory_cytokine_index] = 0;
-		pCell->phenotype.molecular.internalized_total_substrates[virus_index] = 0;
+		pCell->phenotype.molecular.internalized_total_substrates[virion_external] = 0;
 		pCell->custom_data["Vnuc"] = 0;
 	}
 		

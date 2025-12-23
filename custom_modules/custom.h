@@ -65,8 +65,6 @@
 ###############################################################################
 */
 
-
-
 #include "../core/PhysiCell.h"
 #include "../modules/PhysiCell_standard_modules.h" 
 
@@ -93,7 +91,6 @@ void setup_microenvironment( void );
 // custom pathology coloring function 
 std::vector<std::string> epithelium_coloring_function( Cell* );
 std::vector<std::string> tissue_coloring_function( Cell* );
-std::vector<std::string> my_coloring_function(Cell* pCell);
 
 // eventually move this to a tissue submodel 
 
