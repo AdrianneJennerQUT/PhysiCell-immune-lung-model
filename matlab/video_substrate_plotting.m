@@ -15,6 +15,8 @@ debris_index = 5;
 ROS_index = 6;
 
 
+voxel_vol = 20*20*20;
+
 v = VideoWriter('sub111.avi')
 v.FrameRate = 10;
 open(v)
@@ -132,12 +134,29 @@ ROS_index = 6;
  
   epi_tot(tcount) = length(find( MCDS.discrete_cells.metadata.type == epi_index));
   
-  % total dead cells
+  % small volume cells
+  index_cells_small_vol = find(MCDS.discrete_cells.phenotype.geometrical_properties.volumes.total_volume<1);
+
+  % dead cells
   tot_dead_cells(tcount) = length(MCDS.discrete_cells.dead_cells);
-  epi_dead(tcount) =length(find(MCDS.discrete_cells.metadata.type(MCDS.discrete_cells.dead_cells) == epi_index));
+  index_cells_dead_and_small_vol = intersect(MCDS.discrete_cells.dead_cells,index_cells_small_vol);
+  tot_dead_cells_vol_over_1(tcount) = tot_dead_cells(tcount)-length(index_cells_dead_and_small_vol);
+
+  % total dead epi cells
+  index_epi_cells_dead = find(MCDS.discrete_cells.metadata.type(MCDS.discrete_cells.dead_cells) == epi_index);
+  index_epi_cells_dead_vol_under_1 = intersect(index_epi_cells_dead,index_cells_dead_and_small_vol);
+  index_dead_cells = MCDS.discrete_cells.dead_cells;
+  index_cells_suf_vol = find(MCDS.discrete_cells.phenotype.geometrical_properties.volumes.total_volume>1);
+  index_epi_cells = find( MCDS.discrete_cells.metadata.type == epi_index);
+
+  AA = intersect(index_dead_cells,index_cells_suf_vol);
+  epi_dead(tcount) =length(intersect(AA,index_epi_cells));
   
+  %total live cells
+  index_live_cells = MCDS.discrete_cells.live_cells;
+
   %total live epi cells
-  epi_live(tcount) = length(find(MCDS.discrete_cells.metadata.type(MCDS.discrete_cells.live_cells) == epi_index));
+  epi_live(tcount) = length(find(MCDS.discrete_cells.metadata.type(index_live_cells) == epi_index));
   
   %total live epi cells that are infected
   index_vnuc_over_1 = find(MCDS.discrete_cells.custom.Vnuc(MCDS.discrete_cells.live_cells)*voxel_vol>1);
@@ -147,13 +166,21 @@ ROS_index = 6;
   %total epi live uninfected
   epi_live_uninfected(tcount) = epi_live(tcount)-epi_live_infected(tcount);
 
-  %total live epi cells that are not in an antiviral state?
+  %total immune cells
+  CD8_tot_index = find(MCDS.discrete_cells.metadata.type == cd8_index);
+  cd8_tot(tcount) = length(CD8_tot_index);
+ 
+  mac_tot_index = find(MCDS.discrete_cells.metadata.type == mac_index);
+  mac_tot(tcount) = length(mac_tot_index);
 
-  cd8_tot(tcount) = length(find(MCDS.discrete_cells.metadata.type == cd8_index));
-  mac_tot(tcount) = length(find(MCDS.discrete_cells.metadata.type == mac_index));
-  neu_tot(tcount) = length(find(MCDS.discrete_cells.metadata.type == neu_index));
-  DC_tot(tcount) = length(find(MCDS.discrete_cells.metadata.type == DC_index));
-  cd4_tot(tcount) = length(find(MCDS.discrete_cells.metadata.type == cd4_index));
+  neu_tot_index = find(MCDS.discrete_cells.metadata.type == neu_index);
+  neu_tot(tcount) = length(neu_tot_index);
+
+  DC_tot_index = find(MCDS.discrete_cells.metadata.type == DC_index);
+  DC_tot(tcount) = length(DC_tot_index);
+
+  cd4_tot_index = find(MCDS.discrete_cells.metadata.type == cd4_index);
+  cd4_tot(tcount) = length(cd4_tot_index);
 
 
  %determining the total immune cells that are alive
@@ -164,18 +191,14 @@ ROS_index = 6;
  DC_live(tcount) = length(find(MCDS.discrete_cells.metadata.type(MCDS.discrete_cells.live_cells) == DC_index));
  cd4_live(tcount) = length(find(MCDS.discrete_cells.metadata.type(MCDS.discrete_cells.live_cells) == cd4_index));
 
-
-
-
-    frame = getframe(gcf);
-    writeVideo(v,frame);
+ frame = getframe(gcf);
+ writeVideo(v,frame);
     
 
 end
 close(v)
 
 %% substrate totals
-voxel_vol = 20*20*20;
 time_grid = linspace(0,143*120/60/24,143);
 
 figure
